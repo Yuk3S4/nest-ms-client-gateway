@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger, RequestMethod, ValidationPipe } from '@nestjs/common';
 
 import { AppModule } from './app.module';
 import { envs } from './config';
@@ -10,7 +10,12 @@ async function bootstrap() {
   const logger = new Logger('Main Gateway')
   const app = await NestFactory.create(AppModule);
 
-  app.setGlobalPrefix('api')
+  app.setGlobalPrefix('api', {
+    exclude: [{
+      path: '',
+      method: RequestMethod.GET
+    }]
+  })
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -24,7 +29,7 @@ async function bootstrap() {
 
   await app.listen(envs.port);
 
-  console.log('Hola Mundo - segundo cambio');
+  console.log('Health Check configured');
   
 
   logger.log(`Gateway running on port ${ envs.port }`)
